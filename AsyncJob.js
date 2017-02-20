@@ -15,12 +15,13 @@ var threads = [];
 module.exports = Core.Base.clone({
     id: "AsyncJob",
     interval: 1000 * 60,                // 1 minutes
-    start_inside_tomcat: true,
+    start_inside_tomcat: false,
 });
 
 
 module.exports.defbind("add_to_queue", "clone", function () {
     async_jobs.push(this);
+    this.object = this;
 });
 
 
@@ -53,7 +54,7 @@ module.exports.define("start", function () {
 });
 
 
-Rhino.App.defbind("startMonitor", "loadEnd", function () {
+Rhino.App.defbind("startMAutoAsyncJobs", "loadEnd", function () {
     async_jobs.forEach(function (async_job) {
         async_job.info("should be started? " + !!Rhino.app.inside_tomcat +
             " && " + !!async_job.start_inside_tomcat);
@@ -64,7 +65,8 @@ Rhino.App.defbind("startMonitor", "loadEnd", function () {
 });
 
 
-Rhino.App.defbind("stopMonitor", "stop", function () {
+Rhino.App.defbind("stopAllAsyncJobs", "stop", function () {
+    this.info("stopAllAsyncJobs");
     threads.forEach(function (thread) {
         thread.interrupt();
     });

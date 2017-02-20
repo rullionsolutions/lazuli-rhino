@@ -155,17 +155,22 @@ module.exports.define("getSession", function (user_id) {
 });
 
 
+Access.Session.defbind("setAppProperties", "start", function () {
+    this.server_purpose = module.exports.server_purpose;
+    this.runtime_id = module.exports.id;
+});
+
+
+module.exports.defbind("closeAllSessions", "stop", function () {
+    Access.Session.closeAll();
+});
+
+
 module.exports.define("tempLogLevelWrapper", function (override_log_level, callback) {
     var old_log_level = Core.Base.log_level;
     Core.Base.setLogLevel(override_log_level);
     callback.call(this);
     Core.Base.setLogLevel(old_log_level);
-});
-
-
-Access.Session.defbind("setAppProperties", "start", function () {
-    this.server_purpose = module.exports.server_purpose;
-    this.runtime_id = module.exports.id;
 });
 
 
@@ -689,7 +694,7 @@ module.exports.define("upgrade", function (source_db, opts) {
         this.throwError("Database not present");
     }
     this.tempLogLevelWrapper(opts.log_level, function () {
-        Data.Area.areas.each(function (area_id, area) {
+        Data.Area.areas.each(function (area) {
             if (typeof area.upgrade === "function") {
                 area.upgrade(source_db);
             }
@@ -698,7 +703,7 @@ module.exports.define("upgrade", function (source_db, opts) {
             id: "source_conn",
             database: source_db,
         });
-        Data.Entity.entities.each(function (entity_id, entity) {
+        Data.Entity.entities.each(function (entity) {
             try {
                 entity.upgrade(source_conn);
             } catch (e) {
@@ -717,7 +722,7 @@ module.exports.define("printSchemaDifferences", function (source_db) {
     var normal_db = SQL.Connection.database;
     this.info("printSchemaDifferences()");
     this.database = source_db;
-    Data.Entity.entities.each(function (entity_id, entity) {
+    Data.Entity.entities.each(function (entity) {
         entity.printDifferences(entity.getComparator());
     });
     this.database = normal_db;
