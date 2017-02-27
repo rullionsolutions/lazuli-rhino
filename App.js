@@ -46,48 +46,20 @@ module.exports.define("initialize", function (spec) {
 
 
 module.exports.define("setAppPath", function () {
-    var path = Packages.rsl.Main.getContextPath();
-    // this.inside_tomcat = !!path;
-    // if (!path) {
-    //     path = new Packages.java.io.File(".");
-    // }
-    // this.onyx_dir = String(path.getCanonicalPath());
-    var emerald_java_file;
-    var webapps_java_file;
-    if (path) {
-        emerald_java_file = new Packages.java.io.File(path);
-        webapps_java_file = new Packages.java.io.File(path + "/..");
-    } else {
-        emerald_java_file = new Packages.java.io.File(".");
-        webapps_java_file = new Packages.java.io.File("..");
+    function getPathString(path) {
+        var java_file = new Packages.java.io.File(path);
+        return String(java_file.getCanonicalPath()).replace(/\\/g, "/") + "/";
     }
-    this.webapps_dir = String(webapps_java_file.getCanonicalPath()) + "/";
-    this.emerald_dir = String(emerald_java_file.getCanonicalPath()) + "/";
-    this.sapphire_dir = this.webapps_dir + this.version;
+    this.emerald_dir = getPathString(Packages.rsl.Main.getContextPath() || ".");
+    this.webapps_dir = getPathString(this.emerald_dir + "../");
+    this.sapphire_dir = getPathString(this.emerald_dir + "../../") + "node_modules/" + this.version;
     if (this.gitclone_suffix) {
         this.sapphire_dir += "_" + this.gitclone_suffix;
     }
     this.sapphire_dir += "/";
-    this.debug("webapps_dir: " + this.webapps_dir + ", emerald_dir: " + this.emerald_dir + ", sapphire_dir: " + this.sapphire_dir);
+    this.debug("emerald_dir: " + this.emerald_dir + ", webapps_dir: " + this.webapps_dir + ", sapphire_dir: " + this.sapphire_dir);
 });
 
-/*
-module.exports.define("loadLocalSettings", function () {
-    var unix_path = this.onyx_dir.replace(/^\w:/, "").replace(/\\/g, "/") + "/local_overrides.js";
-    var msg;
-    try {
-        require(unix_path);
-        msg = unix_path + " loaded";
-    } catch (ignore) {
-        msg = "No local_overrides.js file loaded";
-    }
-    if (this.protected_properties_override) {
-        msg += " protected_properties.js OVERRIDE: " + this.protected_properties_override;
-    }
-    this.info(msg);
-    require(this.protected_properties_override || "../../../protected_properties.js");
-});
-*/
 
 module.exports.define("setAppProperties", function () {
     var log_file_path;
