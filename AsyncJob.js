@@ -19,7 +19,7 @@ module.exports = Core.Base.clone({
 });
 
 
-module.exports.defbind("add_to_queue", "clone", function () {
+module.exports.defbind("addToQueue", "clone", function () {
     async_jobs.push(this);
     this.object = this;
 });

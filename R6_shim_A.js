@@ -63,6 +63,13 @@ x.core.Base.define("getObject", function (str) {
     return obj;
 });
 
+x.core.Collection.override("getItemTypeObject", function () {
+    if (typeof this.item_type === "string") {       // R6 shim...
+        return this.getObject(this.item_type);
+    }
+    return this.item_type;
+});
+
 // backward-compatibility absolute references
 x.base = x.core;
 x.Base = x.core.Base;

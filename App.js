@@ -144,6 +144,7 @@ module.exports.define("stop", function () {
     this.happen("stop");
     this.closeLogFile();
     if (!this.inside_tomcat) {
+        this.output("stopping java - shouldn't happen inside Tomcat!");
         Packages.java.lang.System.exit(0);
     }
 });
@@ -260,7 +261,7 @@ module.exports.define("rebuild", function (opts) {
     }
     // make sure devs see problems - large amounts of debug/info during build
     this.tempLogLevelWrapper(opts.log_level, function () {
-        Data.Entity.eachEntity(function (entity_id, entity) {
+        Data.entities.each(function (entity) {
             try {
                 entity.rebuild(opts);
             } catch (e) {
@@ -285,10 +286,10 @@ module.exports.define("sendEmails", function () {
 // Deferred sending of nightly batch emails
 module.exports.define("sendEmailsInternal", function () {
     var email;
-    var query = Data.Entity.getEntity("ac_email").getQuery();
+    var query = Data.entities.get("ac_email").getQuery();
     query.addCondition({ full_condition: "A.status = 'N' AND DATE(NOW()) = DATE(A.created_at)", });
     while (query.next()) {
-        email = Data.Entity.getEntity("ac_email").getRow(query.getColumn("A.id").get());
+        email = Data.entities.get("ac_email").getRow(query.getColumn("A.id").get());
         email.id = query.getColumn("A.id").get();
         email.send();
     }
@@ -453,13 +454,13 @@ module.exports.define("restore", function (backup_path) {
 
 
 module.exports.define("slimDataForTesting", function () {
-    Data.Entity.eachEntity(function (entity_id, entity) {
+    Data.entities.each(function (entity) {
         entity.slimDataForTesting();
     });
 });
 
 module.exports.define("obfuscate", function () {
-    Data.Entity.eachEntity(function (entity_id, entity) {
+    Data.entities.each(function (entity) {
         entity.obfuscate();
     });
 });
@@ -579,7 +580,7 @@ module.exports.define("dumpDatabase", function (filename, options) {
     options = options || {};
     options.ignore_tables = options.ignore_tables || [];
 
-    Data.Entity.eachEntity(function (entity_id, entity) {
+    Data.entities.each(function (entity) {
         if (entity.exclude_dump) {
             options.ignore_tables.push(this.database + "." + entity.id);
             // excluded_tables  += separator + "--ignore-table=" + this.database + "." + entity.id;
@@ -660,7 +661,7 @@ module.exports.define("archive", function (days_ago, non_destructive) {
         zip = IO.File.createZipFile(local_path + "../archive_" + (new Date()).format("yyyy-MM-dd_HHmmss") + ".zip");
 
         try {
-            Data.Entity.eachEntity(function (entity_id, entity) {
+            Data.entities.each(function (entity) {
                 that.info(entity.id + ".archive()");
                 archive_file = entity.archive(local_path, non_destructive, max_trans, max_session);
                 if (archive_file) {
@@ -703,7 +704,7 @@ module.exports.define("upgrade", function (source_db, opts) {
             id: "source_conn",
             database: source_db,
         });
-        Data.Entity.entities.each(function (entity) {
+        Data.entities.each(function (entity) {
             try {
                 entity.upgrade(source_conn);
             } catch (e) {
@@ -722,7 +723,7 @@ module.exports.define("printSchemaDifferences", function (source_db) {
     var normal_db = SQL.Connection.database;
     this.info("printSchemaDifferences()");
     this.database = source_db;
-    Data.Entity.entities.each(function (entity) {
+    Data.entities.each(function (entity) {
         entity.printDifferences(entity.getComparator());
     });
     this.database = normal_db;
@@ -737,7 +738,7 @@ module.exports.define("launch", function (session, user_type, spec) {
 
     this.info("launch(): on user_type: " + user_type);
     trans = session.getNewTrans();
-    query = Data.Entity.getEntity("ac_user").getQuery();
+    query = Data.entities.get("ac_user").getQuery();
     query.addCondition({
         column: "A.user_type",
         operator: "=",
