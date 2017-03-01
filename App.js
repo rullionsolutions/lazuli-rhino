@@ -6,6 +6,7 @@ var Core = require("lapis-core/index.js");
 var Data = require("lazuli-data/index.js");
 var SQL = require("lazuli-sql/index.js");
 var IO = require("lazuli-io/index.js");
+var Rhino = require("lazuli-rhino/index.js");
 var Access = require("lazuli-access/index.js");
 
 var initialized = false;
@@ -282,8 +283,7 @@ module.exports.define("dailyBatch", function () {
     var backup_file_size;
     var session;
 
-// bulk sender program TODO
-    // this.smtp_mail_server = null; // don't send email during batch
+    Rhino.app.smtp_mail_server = null; // don't send email during batch
 
     if (this.server_purpose === "prod_alt") {
         this.info("NOT running dailyBatch() on prod_alt server");

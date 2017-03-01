@@ -7,6 +7,7 @@
 // * BEFORE x.rhino.app = x.rhino.App.initialize(...)
 
 // sanity check method - ensures key doesn't already exist anywhere in prototype chain
+// eslint-disable-next-line no-extend-native
 Object.prototype.defineProperty = function (key, value, doc) {
     if (typeof this[key] !== "undefined") {
         throw new Error("key_already_exists: " + key);
@@ -18,8 +19,9 @@ Object.prototype.defineProperty = function (key, value, doc) {
 };
 
 // sanity check method - ensures key doesn't already exist in this object
+// eslint-disable-next-line no-extend-native
 Object.prototype.overrideProperty = function (key, value) {
-    if (this.hasOwnProperty(key)) {
+    if (this.hasOwnProperty(key)) {         // eslint-disable-line no-prototype-builtins
         throw new Error("key_already_exists: " + key);
     }
     if (typeof this[key] === "undefined") {
@@ -29,8 +31,9 @@ Object.prototype.overrideProperty = function (key, value) {
 };
 
 // sanity check method - reassign key if it already exist in this object
+// eslint-disable-next-line no-extend-native
 Object.prototype.reassignProperty = function (key, value) {
-    if (!this.hasOwnProperty(key)) {
+    if (!this.hasOwnProperty(key)) {         // eslint-disable-line no-prototype-builtins
         throw new Error("key_not_exists: " + key);
     }
     this[key] = value;
@@ -41,6 +44,18 @@ x.core.Base.defineProperty = x.core.Base.define;
 x.core.Base.overrideProperty = x.core.Base.override;
 x.core.Base.reassignProperty = x.core.Base.reassign;
 
+
+// eslint-disable-next-line no-extend-native
+Array.prototype.copy = function () {
+    var new_arr = [];
+    var i;
+    for (i = 0; i < this.length; i += 1) {
+        new_arr[i] = this[i];
+    }
+    return new_arr;
+};
+
+/*
 x.core.Base.define("getObject", function (str) {
     var parts;
     var obj;
@@ -62,8 +77,19 @@ x.core.Base.define("getObject", function (str) {
     }
     return obj;
 });
+*/
 
-x.core.Collection.override("getItemTypeObject", function () {
+x.core.Collection.override("define", function (key, value) {
+    if (this[key] === value) {
+        return null;    // allow reassigning the same value to be silently ignored
+    }                   // to accommodate R6 code such as: x.areas.define("sy", x.base.Area.clone({
+    // where the clone() call now automatically adds the new object to the collection
+    return x.core.Base.define.call(this, key, value);
+});
+
+x.core.Collection.override("defineProperty", x.core.Collection.define);
+
+x.core.Collection.reassign("getItemTypeObject", function () {
     if (typeof this.item_type === "string") {       // R6 shim...
         return this.getObject(this.item_type);
     }
@@ -78,14 +104,14 @@ x.OrderedMap = x.core.OrderedMap;
 x.core.Base.getCollection = x.core.Base.getObject;
 
 x.base.Area = x.data.Area;
-x.areas = x.data.Area.areas;
+x.areas = x.data.areas;
 x.FieldSet = x.data.FieldSet;
 x.Entity = x.data.Entity;
-x.entities = x.data.Entity.entities;
-x.fields = x.data.Text.fields;
+x.entities = x.data.entities;
+x.fields = x.data.fields;
 x.LoV = x.data.LoV;
 x.base.AsyncJob = x.rhino.AsyncJob;
-x.data.forms = x.data.Form.forms;
+// x.data.forms = x.data.forms;
 
 // backward-compatibility of overrides
 x.data.Entity.define("init", function () {});
@@ -95,6 +121,8 @@ x.data.Entity.defbind("callInitOnCloneShim", "clone", function () {
 x.data.Text.define("afterTransChange", function () {});
 
 // events shim
+x.EventStack = x.core.OrderedMap;
+
 x.data.Entity.define("events", x.core.OrderedMap.clone({
     id: "events",
     events: [],
@@ -106,29 +134,40 @@ x.data.Entity.defbind("eventShim", "clone", function () {
     // this.events.events = this.parent.events.events.copy();
     this.events.add = function (id, event, script) {
         id += x.core.Format.getRandomString(6);       // prevent property name collisions
+        if (!that.hasHappen(event)) {
+            that.register(event);           // auto-register unrecognized events as happens
+        }
         that.defbind(id, event, script);
     };
 });
 
 
 x.session = x.access;
-x.roles = x.access.Role.roles;
+x.roles = x.access.roles;
 x.MenuItem = x.access.MenuItem;
 x.Session = x.access.Session;
 
-x.pages = x.ui.Page.pages;
-x.sections = x.ui.Section.sections;
+x.pages = x.ui.pages;
+x.sections = x.ui.sections;
 x.Page = x.ui.Page;
 x.ContextPage = x.ui.ContextPage;
+x.pages.sy_bulk_action = x.pages.BulkActionPage;
 
+x.ui.Page.define("events", x.core.OrderedMap.clone({
+    id: "events",
+    events: [],
+}));
 
 x.ui.Page.defbind("eventShim", "clone", function () {
     var that = this;
-    this.events = {
-        add: function (id, event, script) {
-            id += x.core.Format.getRandomString(6);       // prevent property name collisions
-            that.defbind(id, event, script);
-        },
+    this.events = this.parent.events.clone({ id: this.id + ".events", });
+    // this.events.events = this.parent.events.events.copy();
+    this.events.add = function (id, event, script) {
+        id += x.core.Format.getRandomString(6);       // prevent property name collisions
+        if (!that.hasHappen(event)) {
+            that.register(event);           // auto-register unrecognized events as happens
+        }
+        that.defbind(id, event, script);
     };
 });
 
@@ -137,6 +176,7 @@ x.sql.escape = x.sql.Connection.escape;
 x.sql.connection = x.sql.Connection.shared;
 
 x.HttpServer = x.io.HttpServer;
+x.XmlStream = x.io.XmlStream;
 
 x.ui.Section.define("setup", function () {});
 x.ui.Section.define("update", function () {});
