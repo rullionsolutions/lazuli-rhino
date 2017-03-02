@@ -161,7 +161,7 @@ module.exports.define("build", function (opts) {
     // make sure devs see problems - large amounts of debug/info during build
     this.tempLogLevelWrapper(opts.log_level, function () {
         out += this.destructiveRebuild(opts);
-        out += this.unpackConfig();
+        //out += this.unpackConfig();
         out += this.happen("build", opts);
     });
     return out;
