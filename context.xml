@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    change tokens DB_USER, DB_PSWD, DB_HOST and DB_NAME
+    and copy to: webapps/{name}/META-INF/
+-->
+
+<Context displayName="RSL myRecruiter R7.01">
+
+<!-- Control session management. To make Lu distributable, net.lucidium.Session must implement
+java.io.Serializable, then set distributable="true". Attribute saveOnRestart controls whether
+Tomcat tries to save sessions when it reloads. -->
+	<Manager className="org.apache.catalina.session.StandardManager" distributable="false" pathname="" />
+
+<!--  This line is vital to suppress output of "Pragma = No-Cache" headers by Tomcat under https -->
+	<Valve className="org.apache.catalina.authenticator.FormAuthenticator" disableProxyCaching="false" />
+
+	<ResourceLink name="jdbc/database" global="jdbc/db_server" type="javax.sql.DataSource" />
+
+    <Resource name="jdbc/database" auth="Container" type="javax.sql.DataSource"
+      maxActive="150" maxIdle="30" maxWait="10000" removeAbandoned="true" removeAbandonedTimeout="60"
+      logAbandoned="true" testOnBorrow="true" validationInterval="30000" validationQuery="SELECT 1"
+      username="DB_USER" password="DB_PSWD" url="jdbc:mysql://DB_HOST:3306/" driverClassName="com.mysql.jdbc.Driver" />
+
+	<Realm className="rsl.realm.RSLDataSourceRealm" digest="MD5" dbName="DB_NAME"
+      	localDataSource="true" dataSourceName="jdbc/database"
+		userPwdCols="password,pswd_pbkdf" pwdDigestMethods="MD5,PBKDF"
+		userTable="ac_user1" userNameCol="user_id" userCredCol="password" userRoleTable="ac_user_role1" roleNameCol="role_id"/>
+
+	<Parameter name="mainModule" value="exports.js" override="false"/>
+    <Parameter name="mainScript" value="runtime/java_bridge.js" override="false"/>
+
+</Context>
