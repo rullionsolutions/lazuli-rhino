@@ -181,3 +181,4 @@ x.XmlStream = x.io.XmlStream;
 x.ui.Section.define("setup", function () {});
 x.ui.Section.define("update", function () {});
 
+x.ConfirmPage = x.ui.ConfirmPage;
