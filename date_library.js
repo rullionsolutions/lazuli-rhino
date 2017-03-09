@@ -173,7 +173,7 @@ Date.parseDateTime = function (str) {
 };
 
 Date.prototype.parseTime = function (str) {
-    var parts = str.match(/([0-9]+):([0-9]+):([0-9]+)/);
+    var parts = str.split(":");
     if (!parts) {
         return;
     }
