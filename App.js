@@ -421,7 +421,7 @@ module.exports.define("restore", function (backup_path) {
             this.service + "_backup_test.sql.gz";
     }
     this.info("restore(" + backup_path + ")");
-    SQL.Connection.restoreFromGzip(backup_path);
+    this.restoreFromGzip(backup_path);
 });
 
 
@@ -478,7 +478,7 @@ module.exports.define("runOSCommand", function (cmd) {
 
 module.exports.define("execMySQLFile", function (filename) {
     this.info("execMySQLFile(" + filename + ")");
-    return this.runOSCommand(this.composeMySQLCommand() + " < " + filename);
+    return this.runOSCommand(SQL.Connection.composeMySQLCommand() + " < " + filename);
 });
 
 
@@ -513,41 +513,6 @@ module.exports.define("loadSQLFile", function (file) {
 });
 
 
-module.exports.define("composeMySQLCommand", function (options) {
-    var out = "mysql " +
-        " --user=" + this.rdbms_user +
-        " --password=" + this.rdbms_pswd +
-        " --host=" + this.rdbms_host +
-        " --port=" + this.rdbms_port;
-
-    options = options || {};
-    out += (options.batch !== false ? " --batch" : "");
-    out += " " + (options.database || this.database);
-    return out;
-});
-
-
-module.exports.define("composeMySQLDumpCommand", function (options) {
-    var out = "mysqldump" +
-        " -u " + this.rdbms_user +
-        " -p" + this.rdbms_pswd +
-        " -h " + this.rdbms_host +
-        " -P" + this.rdbms_port;
-    var i;
-
-    options = options || {};
-    out += " --skip-comments --skip-opt --quick --add-drop-table --max_allowed_packet=50M --extended-insert";
-    out += (options.where_clause ? " --where=\"" + options.where_clause + "\"" : "");
-    out += (options.output_file ? " --result-file=" + options.output_file : "");
-    for (i = 0; options.ignore_tables && i < options.ignore_tables.length; i += 1) {
-        out += " --ignore-table=" + options.ignore_tables[i];
-    }
-    out += " " + (options.database || this.database);
-    out += (options.tables ? " " + options.tables : "");
-    return out;
-});
-
-
 module.exports.define("dumpDatabase", function (filename, options) {
     options = options || {};
     options.ignore_tables = options.ignore_tables || [];
@@ -565,7 +530,7 @@ module.exports.define("dumpDatabase", function (filename, options) {
 
 
 module.exports.define("dumpMySQLData", function (filename, options) {
-    var command = this.composeMySQLDumpCommand(options);
+    var command = SQL.Connection.composeMySQLDumpCommand(options);
     if (options.compress) {
         command += " | gzip > " + filename + ".gz";
     } else {
@@ -585,7 +550,7 @@ module.exports.define("dumpMySQLDataThrowOnFail", function (filename, options) {
 
 module.exports.define("restoreFromGzip", function (filename) {
     this.info("restoreFromGzip(" + filename + ")");
-    return this.runOSCommand("gzip -d -c " + filename + " | " + this.composeMySQLCommand());
+    return this.runOSCommand("gzip -d -c " + filename + " | " + SQL.Connection.composeMySQLCommand());
 });
 
 
