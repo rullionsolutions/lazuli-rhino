@@ -130,8 +130,8 @@ module.exports.define("getSession", function (user_id) {
 
 
 Access.Session.defbind("setAppProperties", "start", function () {
-    this.server_purpose = module.exports.server_purpose;
-    this.runtime_id = module.exports.id;
+    this.server_purpose = Rhino.app.server_purpose;
+    this.runtime_id = Rhino.app.id;
 });
 
 
