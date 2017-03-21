@@ -105,17 +105,31 @@ module.exports.define("getProjectRootDir", function () {
 
 // To be called at end of main.js
 module.exports.define("start", function () {
-    this.happen("loadEnd");
-    this.happen("start");
-    this.load_time = new Date();
-    this.info("Runtime loaded in " + ((this.load_time.getTime() - this.start_time.getTime()) / 1000) + "ms");
+    try {
+        this.happen("loadEnd");
+        this.happen("start");
+        this.load_time = new Date();
+        this.info("Runtime loaded in " + ((this.load_time.getTime() - this.start_time.getTime()) / 1000) + "ms");
+    } catch (e) {
+        this.report(e);
+        this.fatal("error thrown in App::start - bailing out");
+        this.stop();
+    }
 });
 
 
 module.exports.define("stop", function () {
     this.info("App.stop() called on runtime started at: " + this.start_time);
-    this.happen("stop");
-    this.closeLogFile();
+    try {
+        this.happen("stop");
+    } catch (e) {
+        this.report(e);
+    }
+    try {
+        this.closeLogFile();
+    } catch (e) {
+        this.report(e);
+    }
     if (!this.inside_tomcat) {
         this.output("stopping java - shouldn't happen inside Tomcat!");
         Packages.java.lang.System.exit(0);
@@ -161,7 +175,7 @@ module.exports.define("build", function (opts) {
     // make sure devs see problems - large amounts of debug/info during build
     this.tempLogLevelWrapper(opts.log_level, function () {
         out += this.destructiveRebuild(opts);
-        //out += this.unpackConfig();
+        // out += this.unpackConfig();
         out += this.happen("build", opts);
     });
     return out;
