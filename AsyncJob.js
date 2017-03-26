@@ -56,7 +56,7 @@ module.exports.define("start", function () {
 
 Rhino.App.defbind("startMAutoAsyncJobs", "loadEnd", function () {
     async_jobs.forEach(function (async_job) {
-        async_job.info("should be started? " + !!Rhino.app.inside_tomcat +
+        async_job.debug("should be started? " + !!Rhino.app.inside_tomcat +
             " && " + !!async_job.start_inside_tomcat);
         if (Rhino.app.inside_tomcat && async_job.start_inside_tomcat) {
             async_job.start();
