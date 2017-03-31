@@ -70,6 +70,9 @@ module.exports.define("setAppProperties", function () {
     if (!this.isProd()) {
         this.title += " [" + this.server_purpose + "]";
     }
+    if (this.server_purpose === "devt") {
+        Core.Base.setLogLevel(Core.Base.log_levels.debug);
+    }
     if (typeof this.app_id !== "string" && typeof this.service === "string") {
         this.app_id = this.service + "_" + this.server_purpose.substr(0, 4);
     }
