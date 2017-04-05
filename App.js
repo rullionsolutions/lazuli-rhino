@@ -348,13 +348,13 @@ module.exports.define("dailyBatchProcess", function (start_time, backup_file_siz
         id: "daily_batch_app_server",
         type: "I",
         text: "Daily App Server Id: " + Rhino.app.app_server,
-        app_server: Rhino.app.runtime_row.app_server,
+        app_server: Rhino.app.app_server,
     });
     session.messages.add({
         id: "daily_batch_db_server",
         type: "I",
         text: "Daily DB Server Id: " + Rhino.app.db_server,
-        db_server: Rhino.app.runtime_row.db_server,
+        db_server: Rhino.app.db_server,
     });
     session.messages.add({
         id: "daily_batch_status",
