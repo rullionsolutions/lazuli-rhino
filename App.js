@@ -216,7 +216,7 @@ module.exports.define("isDatabasePresent", function () {
 
 
 module.exports.define("destructiveRebuild", function (opts) {
-    var file_name;
+    // var file_name;
     var out;
 
     this.dropDatabase();
@@ -225,11 +225,11 @@ module.exports.define("destructiveRebuild", function (opts) {
     opts.destructive = (typeof opts.destructive === "boolean") ? opts.destructive : true;
     opts.rebuild_indexes_views = (typeof opts.rebuild_indexes_views === "boolean") ? opts.rebuild_indexes_views : true;
     out = this.rebuild(opts);
-    file_name = "../agate/build/build.sql";
+    // file_name = "../agate/build/build.sql";
     // if (this.version) {
     //     file_name = "../" + this.version + "/" + file_name;
     // }
-    this.execMySQLFile(file_name);
+    // this.execMySQLFile(file_name);
     return out;
 });
 
@@ -495,10 +495,12 @@ module.exports.define("runOSCommand", function (cmd) {
 
 module.exports.define("execMySQLFile", function (filename) {
     this.info("execMySQLFile(" + filename + ")");
-    return this.runOSCommand(SQL.Connection.composeMySQLCommand() + " < " + filename);
+    return this.runOSCommand(SQL.Connection.shared.composeMySQLCommand() + " < " + filename);
 });
 
 
+/*
+use the one in SQL.Connection
 module.exports.define("loadSQLFile", function (file) {
     var reader;
     var line;
@@ -528,7 +530,7 @@ module.exports.define("loadSQLFile", function (file) {
     }
     return 1;
 });
-
+*/
 
 module.exports.define("dumpDatabase", function (filename, options) {
     options = options || {};
