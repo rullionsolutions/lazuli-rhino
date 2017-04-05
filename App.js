@@ -345,6 +345,18 @@ module.exports.define("dailyBatchProcess", function (start_time, backup_file_siz
         session_id: session.id,
     });
     session.messages.add({
+        id: "daily_batch_app_server",
+        type: "I",
+        text: "Daily App Server Id: " + Rhino.app.runtime_row.app_server,
+        app_server: Rhino.app.runtime_row.app_server,
+    });
+    session.messages.add({
+        id: "daily_batch_db_server",
+        type: "I",
+        text: "Daily DB Server Id: " + Rhino.app.runtime_row.db_server,
+        db_server: Rhino.app.runtime_row.db_server,
+    });
+    session.messages.add({
         id: "daily_batch_status",
         type: "I",
         text: "Daily Batch Status: " + session.getFinalStatus(),
@@ -356,7 +368,7 @@ module.exports.define("dailyBatchProcess", function (start_time, backup_file_siz
         text: "Daily Batch Duration (ms): " + duration,
         duration: duration,
     });
-//    this.sample(session);
+    this.sample(session);
     session.close();
     return session;
 });
