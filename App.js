@@ -409,7 +409,7 @@ module.exports.define("sample", function (session) {
     session.messages.addJSON(out, "report");
     session.messages.clear("report");
     writer = new Packages.java.io.PrintWriter(Rhino.app.webapps_dir + "../samples/" + this.app_id + "_" + (new Date()).internal() + ".js");
-    writer.println(JSON.stringify(out));
+    writer.println(JSON.stringify(out, null, 4));
     writer.close();
 });
 
