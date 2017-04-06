@@ -345,6 +345,18 @@ module.exports.define("dailyBatchProcess", function (start_time, backup_file_siz
         session_id: session.id,
     });
     session.messages.add({
+        id: "daily_batch_app_server",
+        type: "I",
+        text: "Daily App Server Id: " + Rhino.app.app_server,
+        app_server: Rhino.app.app_server,
+    });
+    session.messages.add({
+        id: "daily_batch_db_server",
+        type: "I",
+        text: "Daily DB Server Id: " + Rhino.app.db_server,
+        db_server: Rhino.app.db_server,
+    });
+    session.messages.add({
         id: "daily_batch_status",
         type: "I",
         text: "Daily Batch Status: " + session.getFinalStatus(),
@@ -356,7 +368,7 @@ module.exports.define("dailyBatchProcess", function (start_time, backup_file_siz
         text: "Daily Batch Duration (ms): " + duration,
         duration: duration,
     });
-//    this.sample(session);
+    this.sample(session);
     session.close();
     return session;
 });
@@ -394,10 +406,10 @@ module.exports.define("sample", function (session) {
     var writer;
 
     this.info("sample()");
-    session.messages.addJSON(out, "report");
-    session.messages.clear("report");
-    writer = new Packages.java.io.PrintWriter("../samples/" + this.app_id + "_" + (new Date()).internal() + ".js");
-    writer.println(JSON.stringify(out));
+    session.messages.addJSON(out);
+    // session.messages.clear("report");
+    writer = new Packages.java.io.PrintWriter(Rhino.app.webapps_dir + "/samples/" + this.app_id + "_" + (new Date()).internal() + ".js");
+    writer.println(JSON.stringify(out, null, 4));
     writer.close();
 });
 
