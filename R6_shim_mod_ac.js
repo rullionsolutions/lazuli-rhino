@@ -19,3 +19,4 @@ x.entities.ac_user.data_volume_oom = 3;
 x.entities.ac_user_deleg.data_volume_oom = 3;
 x.entities.ac_user_role.data_volume_oom = 3;
 x.entities.ac_visit.data_volume_oom = 5;
+x.entities.ac_wf_inst.data_volume_oom = 4;
