@@ -17,3 +17,50 @@ x.lib.define("realReadFile", function (path) {
 });
 x.build = x.io.File;
 
+/**
+ * The root Archetype of a thrown Exception, containing stack trace and other useful information
+ * @type {x.Base}
+ */
+x.Exception = x.Base.clone({
+    id: "Exception",
+    stack_trace: null, // String stack trace block (JavaScript lines only, Java lines filtered out), with lines separated by newline characters
+});
+
+
+/**
+ * To create a new Exception object; preferred usage: 'throw x.Exception.clone({ id: xxx, y: z, etc })' - note NO 'new' keyword
+ * @param  {object} props containing 'id' parameter, and any other properties useful to know for the situation - these are output to log
+ * @return {string}       newline-separated stack trace
+ */
+x.Exception.override("clone", function (props) {
+    var obj = x.Base.clone.call(this, props);
+    var stack_trace_elements = java.lang.Thread.currentThread().getStackTrace();
+    var i;
+    var delim = "";
+
+    obj.stack_trace = "";
+    for (i = 0; i < stack_trace_elements.length; i += 1) {
+        if (stack_trace_elements[i].getClassName().indexOf("org.mozilla.javascript.gen") === 0 && stack_trace_elements[i].getLineNumber() > 0) {
+            obj.stack_trace += delim + (stack_trace_elements[i].getFileName() || stack_trace_elements[i].getClassName()) + ":" + stack_trace_elements[i].getLineNumber();
+            delim = "\n";
+        }
+    }
+    if (!obj.stack_trace) {
+        obj.stack_trace = "[unobtainable]";
+    }
+    return obj;
+});
+
+
+x.Exception.override("toString", function (nice) {
+    var number;
+    if (!nice) {
+        return this.view();
+    } else if (Object.hasOwnProperty.call(this, "text")) {
+        return this.text;
+    } else {
+        number = Math.floor(Math.random() * 10000);
+        x.log.error(number, this.view());
+        return "A system error has occured: #" + number;
+    }
+});

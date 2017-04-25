@@ -1,6 +1,8 @@
 /*global x, java */
 "use strict";
 
+var Core = require("lapis-core/index.js");
+
 Date.preferAmericanFormat = false;
 
 /*
@@ -333,7 +335,7 @@ Date.displayTimeInterval = function (seconds, options) {
     }
 
     // apply decimal places to seconds
-    amts[0] = amts[0].round(options.decimal_places);
+    amts[0] = Core.Format.round(amts[0], options.decimal_places);
 
     // work out the highest non-zero unit value (top_nonzero) and the lowest unit to show according to granularity (bot_show)
 //    if (options.granularity === "s") {

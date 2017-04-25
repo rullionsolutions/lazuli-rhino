@@ -30,6 +30,18 @@ Object.prototype.overrideProperty = function (key, value) {
     this[key] = value;
 };
 
+Object.prototype.forOwn = function (funct) {
+    var prop;
+    if (typeof funct !== "function") {
+        funct = this[funct];
+    }
+    for (prop in this) {
+        if (this.hasOwnProperty(prop) && typeof this[prop] !== "function") {
+            funct(prop, this[prop]);
+        }
+    }
+};
+
 // sanity check method - reassign key if it already exist in this object
 // eslint-disable-next-line no-extend-native
 Object.prototype.reassignProperty = function (key, value) {
