@@ -142,7 +142,7 @@ module.exports.define("stop", function () {
 
 // Console Sugar
 module.exports.define("getSession", function (user_id) {
-    return Access.Session.clone({ user_id: user_id, });
+    return Access.Session.getNewSession({ user_id: user_id, });
 });
 
 
@@ -325,7 +325,7 @@ module.exports.define("dailyBatch", function () {
 
 
 module.exports.define("dailyBatchProcess", function (start_time, backup_file_size) {
-    var session = Access.Session.clone({ user_id: "batch", });
+    var session = Access.Session.getNewSession({ user_id: "batch", });
     var duration;
 
     this.happen("dailyBatch", session);
