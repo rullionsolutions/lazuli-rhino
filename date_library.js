@@ -167,6 +167,7 @@ Date.parseDateTime = function (str) {
     parts = str.split(" ");
     if (parts.length > 0) {
         date = Date.parseString(parts[0]);
+        date.clearTime();
     }
     if (date && parts.length > 1) {
         date.parseTime(parts[1]);
@@ -179,14 +180,14 @@ Date.prototype.parseTime = function (str) {
     if (!parts) {
         return;
     }
+    if (parts.length > 0) {
+        this.setHours(  parseInt(parts[0], 10));
+    }
     if (parts.length > 1) {
-        this.setHours(  parseInt(parts[1], 10));
+        this.setMinutes(parseInt(parts[1], 10));
     }
     if (parts.length > 2) {
-        this.setMinutes(parseInt(parts[2], 10));
-    }
-    if (parts.length > 3) {
-        this.setSeconds(parseInt(parts[3], 10));
+        this.setSeconds(parseInt(parts[2], 10));
     }
 };
 
