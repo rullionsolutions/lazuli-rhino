@@ -167,6 +167,8 @@ Date.parseDateTime = function (str) {
     parts = str.split(" ");
     if (parts.length > 0) {
         date = Date.parseString(parts[0]);
+    }
+    if (date) {
         date.clearTime();
     }
     if (date && parts.length > 1) {

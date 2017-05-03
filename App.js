@@ -115,8 +115,8 @@ module.exports.define("start", function () {
         this.info("Runtime loaded in " + ((this.load_time.getTime() - this.start_time.getTime()) / 1000) + "ms");
     } catch (e) {
         this.report(e);
-        this.fatal("error thrown in App::start - bailing out");
-        this.stop();
+        this.fatal("error thrown in App::start - ALERT!");
+        // this.stop();
     }
 });
 
@@ -420,25 +420,30 @@ module.exports.define("sample", function (session) {
 * {x.protected_properties.local_disk}backups/{x.app.id}/{x.app.id}_backup_{dd}.zip
 * @return output zip file size in bytes
 */
-module.exports.define("backup", function (filename) {
+module.exports.define("backup", function (filename, options) {
     var backup_path = this.local_disk + "/backups/" + this.service;
     IO.File.mkdir(backup_path);
+    options = options || {};
     backup_path += "/" + this.service + "_backup_";
     if (filename === "month_rotate") {
         backup_path += (new Date()).format("dd");
-    } else if (filename === "timestamp") {
+    } else if (filename === "timestamp" || !filename) {
         backup_path += (new Date()).format("yyyy-MM-dd_HH-mm-ss");
     } else {
         backup_path += filename;
     }
     backup_path += ".sql";
+    if (typeof options.compress !== "boolean") {
+        options.compress = true;
+    }
     this.info("backup(" + backup_path + ")");
-    this.dumpDatabase(backup_path);
+    this.dumpDatabase(backup_path, options);
     return IO.File.size(backup_path);
 });
 
 
 module.exports.define("restore", function (backup_path) {
+    var command = SQL.Connection.composeMySQLCommand();
     if (backup_path === "today") {
         backup_path = this.shared_disk + "/backups/" + this.service + "/" +
             this.service + "_backup_" + Date.parse("today").format("dd") + ".sql.gz";
@@ -450,7 +455,16 @@ module.exports.define("restore", function (backup_path) {
             this.service + "_backup_test.sql.gz";
     }
     this.info("restore(" + backup_path + ")");
-    this.restoreFromGzip(backup_path);
+    if (backup_path.match(/\.gz$/)) {
+        if (!this.isGzipAvailable()) {
+            this.throwError("no gzip available to unzip this backup file: " + backup_path);
+        }
+        command = "gzip -d -c " + backup_path + " | " + command;
+    } else {
+        command += " < " + backup_path;
+    }
+    // this.restoreFromGzip(backup_path);
+    return this.runOSCommand(command);
 });
 
 
@@ -488,6 +502,14 @@ module.exports.define("isLinux", function () {
 });
 
 
+module.exports.define("isGzipAvailable", function () {
+    if (typeof this.gzip_available !== "boolean") {
+        this.gzip_available = (this.runOSCommand("which gzip") === 0);
+    }
+    return this.gzip_available;
+});
+
+
 module.exports.define("runOSCommand", function (cmd) {
     var return_code;
     this.info("runOSCommand(" + cmd.replace(/--password=\w*/, "--password=xxxx").replace(/-p\w+/, "-pxxxx") + ")");
@@ -511,39 +533,6 @@ module.exports.define("execMySQLFile", function (filename) {
 });
 
 
-/*
-use the one in SQL.Connection
-module.exports.define("loadSQLFile", function (file) {
-    var reader;
-    var line;
-    var sql = "";
-
-    this.info("loadSQLFile(" + file + ")");
-    try {
-        reader = new Packages.java.io.BufferedReader(
-            new Packages.java.io.InputStreamReader(
-            new Packages.java.io.FileInputStream(file)));
-        line = reader.readLine();
-        while (line) {
-            line = (String(line)).trim();
-            sql += line;
-            if (sql.match(/;$/)) {
-                SQL.Connection.shared.executeUpdate(sql);
-                sql = "";
-            } else {
-                sql += "\n";
-            }
-            line = reader.readLine();
-        }
-        reader.close();
-    } catch (e) {
-        this.error(e.toString());
-        return e + "\n";
-    }
-    return 1;
-});
-*/
-
 module.exports.define("dumpDatabase", function (filename, options) {
     options = options || {};
     options.ignore_tables = options.ignore_tables || [];
@@ -563,6 +552,9 @@ module.exports.define("dumpDatabase", function (filename, options) {
 module.exports.define("dumpMySQLData", function (filename, options) {
     var command = SQL.Connection.composeMySQLDumpCommand(options);
     if (options.compress) {
+        if (!this.isGzipAvailable()) {
+            this.throwError("no gzip available to zip this backup file: " + filename);
+        }
         command += " | gzip > " + filename + ".gz";
     } else {
         command += "        > " + filename;
