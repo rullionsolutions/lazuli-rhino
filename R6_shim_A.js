@@ -163,7 +163,11 @@ x.pages = x.ui.pages;
 x.sections = x.ui.sections;
 x.Page = x.ui.Page;
 x.ContextPage = x.ui.ContextPage;
-x.pages.sy_bulk_action = x.pages.BulkActionPage;
+x.pages.sy_bulk_action = x.ui.BulkActionPage.clone({
+    id: "sy_bulk_action",
+});
+x.Transaction = x.data.Transaction;
+x.MessageManager = x.core.MessageManager;
 
 x.ui.Page.define("events", x.core.OrderedMap.clone({
     id: "events",
