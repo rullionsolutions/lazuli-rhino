@@ -198,3 +198,16 @@ x.ui.Section.define("setup", function () {});
 x.ui.Section.define("update", function () {});
 
 x.ConfirmPage = x.ui.ConfirmPage;
+
+x.Transaction.define("addEmail", function (spec) {
+    var email;
+    if (this.page) {
+        email = this.page.addEmail(spec);
+    } else {
+        spec.trans = this;
+        spec.session = this.session;
+        email = Data.entities.get("ac_email").create(spec);
+        email.send();
+    }
+    return email;
+});
