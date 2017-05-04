@@ -198,7 +198,7 @@ module.exports.define("dropDatabase", function () {
 module.exports.define("createDatabase", function () {
     SQL.Connection.shared.executeUpdate("SET STORAGE_ENGINE=" + SQL.Connection.storage_engine);
     SQL.Connection.shared.executeUpdate("CREATE DATABASE " + SQL.Connection.database);
-    this.database_exists = true;
+    SQL.Connection.database_exists = true;
     SQL.Connection.shared.executeUpdate("USE " + SQL.Connection.database);
 });
 
