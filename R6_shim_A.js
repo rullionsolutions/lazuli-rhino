@@ -163,7 +163,11 @@ x.pages = x.ui.pages;
 x.sections = x.ui.sections;
 x.Page = x.ui.Page;
 x.ContextPage = x.ui.ContextPage;
-x.pages.sy_bulk_action = x.pages.BulkActionPage;
+x.pages.sy_bulk_action = x.ui.BulkActionPage.clone({
+    id: "sy_bulk_action",
+});
+x.Transaction = x.data.Transaction;
+x.MessageManager = x.core.MessageManager;
 
 x.ui.Page.define("events", x.core.OrderedMap.clone({
     id: "events",
@@ -194,3 +198,16 @@ x.ui.Section.define("setup", function () {});
 x.ui.Section.define("update", function () {});
 
 x.ConfirmPage = x.ui.ConfirmPage;
+
+x.Transaction.define("addEmail", function (spec) {
+    var email;
+    if (this.page) {
+        email = this.page.addEmail(spec);
+    } else {
+        spec.trans = this;
+        spec.session = this.session;
+        email = Data.entities.get("ac_email").create(spec);
+        email.send();
+    }
+    return email;
+});
