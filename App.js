@@ -189,7 +189,9 @@ module.exports.define("build", function (opts) {
 * drops the database if exists; dependencies: none
 */
 module.exports.define("dropDatabase", function () {
-    SQL.Connection.shared.executeUpdate("DROP DATABASE IF EXISTS " + SQL.Connection.database);
+    if (SQL.Connection.database_exists) {
+        SQL.Connection.shared.executeUpdate("DROP DATABASE IF EXISTS " + SQL.Connection.database);
+    }
 });
 
 
