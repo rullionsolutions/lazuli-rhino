@@ -196,6 +196,8 @@ x.XmlStream = x.io.XmlStream;
 
 x.ui.Section.define("setup", function () {});
 x.ui.Section.define("update", function () {});
+x.sql.outer_join = x.sql.Query.Table.types.outer_join;
+x.sql.inner_join = x.sql.Query.Table.types.inner_join;
 
 x.ConfirmPage = x.ui.ConfirmPage;
 
