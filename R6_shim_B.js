@@ -15,6 +15,18 @@ x.lib.define("getProjectRootDir", function () {
 x.lib.define("realReadFile", function (path) {
     return x.io.File.readFile(path);
 });
+x.lib.define("toDate", function (str) {
+    var pattern = new RegExp("([0-9]{4})-([0-9]{2})-([0-9]{2})"),
+        parts   = pattern.exec(str),
+        date;
+
+    if (!parts || parts.length < 4) {
+        throw x.Exception.clone({ id: "invalid_date_format", text: str + " is an invalid date; must be in the format 'yyyy-mm-dd'"});
+    }
+    date = new Date(parseInt(parts[1], 10), parseInt(parts[2], 10)-1, parseInt(parts[3], 10));
+    date.setHours(12);        // Set time to midday to avoid timezone problems when working with dates only
+    return date;
+});
 x.build = x.io.File;
 
 /**

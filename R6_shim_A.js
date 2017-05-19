@@ -190,6 +190,24 @@ x.ui.Page.defbind("eventShim", "clone", function () {
 
 x.sql.escape = x.sql.Connection.escape;
 x.sql.connection = x.sql.Connection.shared;
+x.sql.detokenizeAlias = function (sql_function, alias) {
+// This DOESN'T currently support escaping a ? with a prefixed \ - it wasn't working
+//    var out = sql_function.replace(/\?/g, alias).replace(new RegExp("\\\\" + alias), "?");        // replace ? with alias unless prefixed with \
+//    this.info("x.sql.detokenizeAlias: " + sql_function + ", " + alias + " -> " + out);
+//    return sql_function.replace(/\?/g, alias);
+
+    //CL - Allows for SQL function based URL fields
+    //CL (Again) - I should have used x.field.URL.url_pattern but I think this code still stands
+    if (sql_function.match(/\?\./g)) {    //Match ?.
+        return sql_function.replace(/\?\./g, alias + ".");
+    }
+    if (sql_function.match(/\?_/g)) {    //Match ?_
+        return sql_function.replace(/\?_/g, alias + "_");
+    }
+    //Return unchanged
+    return sql_function;
+};
+
 
 x.HttpServer = x.io.HttpServer;
 x.XmlStream = x.io.XmlStream;
