@@ -162,6 +162,7 @@ x.Session = x.access.Session;
 x.pages = x.ui.pages;
 x.sections = x.ui.sections;
 x.Page = x.ui.Page;
+x.ReportPage = x.ui.ReportPage;
 x.ContextPage = x.ui.ContextPage;
 x.pages.sy_bulk_action = x.ui.BulkActionPage.clone({
     id: "sy_bulk_action",
