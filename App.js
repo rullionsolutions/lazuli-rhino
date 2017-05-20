@@ -25,6 +25,7 @@ module.exports.register("stop");
 module.exports.register("build");
 module.exports.register("rebuild");
 module.exports.register("dailyBatch");
+module.exports.register("generateDemoData");
 
 
 module.exports.define("initialize", function (spec) {
