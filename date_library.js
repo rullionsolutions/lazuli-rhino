@@ -1,4 +1,5 @@
-/*global x, java */
+/*global x */
+
 "use strict";
 
 var Core = require("lapis-core/index.js");
@@ -255,8 +256,8 @@ Date.parse = function (str) {
 };
 
 Date.prototype.periodBetween = function (date, form, inclusivity) {
-    var obj = null,
-        str;
+    var obj = null;
+    var str;
     if (date) {
         if (inclusivity === "inclusive") {
             this.add('d', -1);
@@ -264,15 +265,28 @@ Date.prototype.periodBetween = function (date, form, inclusivity) {
             this.add('d',  1);
         }
         if (this.daysBetween(date) === 0) {
-            obj = { period: "days", number: 0 };
-        } else if (date.getDate() === this.getDate() && date.getMonth() === this.getMonth()) {
-            obj = { period: "years" , number: date.getFullYear() - this.getFullYear() };
+            obj = {
+                period: "days",
+                number: 0,
+            };
+        // } else if (date.getDate() === this.getDate() && date.getMonth() === this.getMonth()) {
+        //     obj = { period: "years" , number: date.getFullYear() - this.getFullYear() };
         } else if (date.getDate() === this.getDate()) {
-            obj = { period: "months", number: (date.getFullYear() - this.getFullYear()) * 12 + date.getMonth() - this.getMonth() };
+            obj = {
+                period: "months",
+                number: (((date.getFullYear() - this.getFullYear()) * 12)
+                    + date.getMonth()) - this.getMonth(),
+            };
         } else if (this.daysBetween(date) % 7 === 0) {
-            obj = { period: "weeks" , number: this.daysBetween(date) / 7 };
+            obj = {
+                period: "weeks",
+                number: this.daysBetween(date) / 7,
+            };
         } else {
-            obj = { period: "days", number: this.daysBetween(date) };
+            obj = {
+                period: "days",
+                number: this.daysBetween(date),
+            };
         }
     }
     if (inclusivity === "inclusive") {              // ensure this remains unchanged at end
@@ -283,7 +297,7 @@ Date.prototype.periodBetween = function (date, form, inclusivity) {
     if (form === "string") {
         return (obj ? obj.number + "|" + obj.period : "");
     } else if (form === "display") {
-        str  = (obj ? obj.number + " " + obj.period : "");
+        str = (obj ? obj.number + " " + obj.period : "");
         if (str && obj.number === 1) {
             str = str.replace(/s$/, "");
         }
