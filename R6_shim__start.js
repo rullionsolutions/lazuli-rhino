@@ -24,8 +24,8 @@ x.loadModule = function (module) {
 };
 
 x.loadFile = function (file_name) {
-    if (x.app && x.app.version && !x.app.home_dir) {
-        x.app.home_dir = "../../node_modules/" + x.app.version;
+    if (!x.app.home_dir) {
+        x.app.home_dir = "node_modules/sapphire";
         if (x.app.gitclone_suffix) {
             x.app.home_dir += "_" + x.app.gitclone_suffix;
         }
