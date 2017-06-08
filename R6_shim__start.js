@@ -49,5 +49,5 @@ x.loadLocalSettings = function () {
 */
 
 x.runtime.print = function (str) {
-    print("LOAD : " + str);
+    print("LOAD  " + str);
 };
