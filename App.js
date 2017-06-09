@@ -55,7 +55,13 @@ module.exports.define("setAppPath", function () {
     this.emerald_dir = getPathString(Packages.rsl.Main.getContextPath() || ".");
     this.webapps_dir = getPathString(this.emerald_dir + "../");
     this.sapphire_dir = getPathString(this.emerald_dir + "/") + "node_modules/sapphire";
-    this.cdn_rsl_dir = this.cdn_rsl_dir || (this.server_purpose === "devt" ? "/cdn/rsl_dev/" : "/cdn/rsl-" + this.version + "/");
+    if (!this.cdn_rsl_dir) {
+        if (this.server_purpose === "devt" || this.server_purpose === "test") {
+            this.cdn_rsl_dir = "/cdn/rsl_dev/"
+        } else {
+            this.cdn_rsl_dir = "/cdn/rsl-" + this.version + "/";
+        }
+    }
     if (this.gitclone_suffix) {
         this.sapphire_dir += "_" + this.gitclone_suffix;
     }
