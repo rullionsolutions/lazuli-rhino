@@ -56,7 +56,7 @@ module.exports.define("setAppPath", function () {
     this.webapps_dir = getPathString(this.emerald_dir + "../");
     this.sapphire_dir = getPathString(this.emerald_dir + "/") + "node_modules/sapphire";
     if (!this.cdn_rsl_dir) {
-        if (this.server_purpose === "devt" || this.server_purpose === "test") {
+        if (this.service === "onyx" && (this.server_purpose === "devt" || this.server_purpose === "test")) {
             this.cdn_rsl_dir = "/cdn/rsl_dev/"
         } else {
             this.cdn_rsl_dir = "/cdn/rsl-" + this.version + "/";
