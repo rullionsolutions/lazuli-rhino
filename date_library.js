@@ -255,6 +255,20 @@ Date.parse = function (str) {
     return date;
 };
 
+
+Date.getStartOfWeek = function (date, stDay) {
+    var day = date.getDay(), orig = new Date(date),
+        diff = date.getDate() - day + stDay,
+        tmp = new Date(date.setDate(diff));
+
+    //Move back a week if date generated above is after the one supplied in the parameter
+    if (tmp > orig) {
+        tmp.setDate(tmp.getDate() - 7);
+    }
+    return tmp;
+};
+
+
 Date.prototype.periodBetween = function (date, form, inclusivity) {
     var obj = null;
     var str;
