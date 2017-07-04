@@ -55,7 +55,6 @@ module.exports.define("setAppPath", function () {
     this.emerald_dir = getPathString(Packages.rsl.Main.getContextPath() || ".");
     this.webapps_dir = getPathString(this.emerald_dir + "../");
     this.sapphire_dir = getPathString(this.emerald_dir + "/") + "node_modules/sapphire";
-    this.cdn_rsl_dir = this.cdn_rsl_dir || (this.server_purpose === "devt" ? "/cdn/rsl_dev/" : "/cdn/rsl-" + this.version + "/");
     if (this.gitclone_suffix) {
         this.sapphire_dir += "_" + this.gitclone_suffix;
     }
@@ -78,6 +77,7 @@ module.exports.define("setAppProperties", function () {
     if (typeof this.app_id !== "string" && typeof this.service === "string") {
         this.app_id = this.service + "_" + this.server_purpose.substr(0, 4);
     }
+    this.cdn_rsl_dir = this.cdn_rsl_dir || ("/" + this.app_id + "/node_modules/lazuli-client/");
     if (typeof SQL.Connection.database !== "string") {
         SQL.Connection.database = this.app_id;
     }
